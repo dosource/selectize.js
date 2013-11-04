@@ -195,6 +195,7 @@
 						{value: 'a'},
 						{value: 'b'},
 						{value: 'c'},
+						{value: '$1'},
 						{value: '\''},
 						{value: '"'},
 						{value: '\\\''},
@@ -231,6 +232,16 @@
 			it('should update DOM', function() {
 				test.selectize.addItem('c');
 				expect(test.selectize.$control.find('[data-value=c]').length).to.be.equal(1);
+
+				test.selectize.addItem('$1');
+				var found = false;
+				test.selectize.$control.children().each(function() {
+					if (this.getAttribute('data-value') === '$1') {
+						found = true;
+						return false;
+					}
+				});
+				expect(found).to.be.equal(true);
 			});
 		});
 
@@ -548,6 +559,11 @@
 				test.selectize.destroy();
 				expect(test.$select.html()).to.be.equal(children);
 				expect(test.$select.attr('tabindex')).to.be.equal('9999');
+			});
+			it('should remove tabindex if it was originally undefined', function() {
+				var test = setup_test('<select>', {});
+				test.selectize.destroy();
+				expect(test.$select.attr('tabindex')).to.be.equal(undefined);
 			});
 		});
 

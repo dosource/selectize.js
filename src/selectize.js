@@ -18,7 +18,7 @@ var Selectize = function($input, settings) {
 		highlightedValue : null,
 		isOpen           : false,
 		isDisabled       : false,
-		isRequired       : $input.is(':required'),
+		isRequired       : $input.is('[required]'),
 		isInvalid        : false,
 		isLocked         : false,
 		isFocused        : false,
@@ -394,7 +394,7 @@ $.extend(Selectize.prototype, {
 				}
 				break;
 			case KEY_ESC:
-				self.blur();
+				self.close();
 				return;
 			case KEY_DOWN:
 				if (!self.isOpen && self.hasOptions) {
@@ -493,7 +493,7 @@ $.extend(Selectize.prototype, {
 		self.isFocused = true;
 		if (self.isDisabled) {
 			self.blur();
-			e.preventDefault();
+			e && e.preventDefault();
 			return false;
 		}
 
@@ -1226,10 +1226,14 @@ $.extend(Selectize.prototype, {
 			var i, active, options, value_next;
 			value = hash_key(value);
 
+			if (self.items.indexOf(value) !== -1) {
+				if (inputMode === 'single') self.close();
+				return;
+			}
+
+			if (!self.options.hasOwnProperty(value)) return;
 			if (inputMode === 'single') self.clear();
 			if (inputMode === 'multi' && self.isFull()) return;
-			if (self.items.indexOf(value) !== -1) return;
-			if (!self.options.hasOwnProperty(value)) return;
 
 			$item = $(self.render('item', self.options[value]));
 			self.items.splice(self.caretPos, 0, value);
@@ -1752,6 +1756,7 @@ $.extend(Selectize.prototype, {
 		self.$input
 			.html('')
 			.append(revertSettings.$children)
+			.removeAttr('tabindex')
 			.attr({tabindex: revertSettings.tabindex})
 			.show();
 
@@ -1801,10 +1806,10 @@ $.extend(Selectize.prototype, {
 		}
 		if (templateName === 'optgroup') {
 			id = data[self.settings.optgroupValueField] || '';
-			html = html.replace(regex_tag, '<$1 data-group="' + escape_html(id) + '"');
+			html = html.replace(regex_tag, '<$1 data-group="' + escape_replace(escape_html(id)) + '"');
 		}
 		if (templateName === 'option' || templateName === 'item') {
-			html = html.replace(regex_tag, '<$1 data-value="' + escape_html(value || '') + '"');
+			html = html.replace(regex_tag, '<$1 data-value="' + escape_replace(escape_html(value || '')) + '"');
 		}
 
 		// update cache
