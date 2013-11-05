@@ -1476,7 +1476,7 @@ $.extend(Selectize.prototype, {
 		var trigger = self.isOpen;
 
 		if (self.settings.mode === 'single' && self.items.length) {
-			self.hideInput();
+			//self.hideInput();
 		}
 
 		self.isOpen = false;
